@@ -76,6 +76,7 @@ export function parseSerpApiResults(data, filterAirlines = []) {
       source: 'google_flights',
       carbonEmissions: option.carbon_emissions?.this_flight,
       airlineLogo: first.airline_logo,
+      bookingToken: option.booking_token || null,
     });
   }
   return flights;

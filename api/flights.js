@@ -41,9 +41,15 @@ export async function searchAllFlights({ origin, destination, dateOut, dateIn, a
 
   results.flights = [...ryanairFlights, ...serpWithoutRyanair];
 
-  // Add deep links to airline booking pages
+  // Add booking links: Google Flights booking token (reliable) + airline deep link (backup)
   for (const flight of results.flights) {
-    flight.bookingUrl = getBookingUrl(flight.airline, searchParams);
+    if (flight.bookingToken) {
+      flight.bookingUrl = `https://www.google.com/travel/flights/booking?tfs=${encodeURIComponent(flight.bookingToken)}&hl=nl&gl=nl&curr=EUR`;
+    }
+    flight.airlineUrl = getBookingUrl(flight.airline, searchParams);
+    if (!flight.bookingUrl) {
+      flight.bookingUrl = flight.airlineUrl;
+    }
   }
 
   // Sort by price (cheapest first)
