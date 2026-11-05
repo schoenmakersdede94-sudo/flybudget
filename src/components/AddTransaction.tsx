@@ -1,26 +1,29 @@
 import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import type { Transaction, TransactionType } from '../types';
+import type { Transaction, TransactionType, Trip } from '../types';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../categories';
 
 interface Props {
+  trips: Trip[];
+  activeTrip: string | null;
   onAdd: (tx: Transaction) => void;
 }
 
-export function AddTransaction({ onAdd }: Props) {
+export function AddTransaction({ trips, activeTrip, onAdd }: Props) {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<TransactionType>('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [tripId, setTripId] = useState(activeTrip ?? '');
 
   const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!amount || !category) return;
+    if (!amount || !category || !tripId) return;
     onAdd({
       id: uuidv4(),
       type,
@@ -28,6 +31,7 @@ export function AddTransaction({ onAdd }: Props) {
       category,
       description,
       date,
+      tripId,
     });
     setAmount('');
     setCategory('');
@@ -35,14 +39,22 @@ export function AddTransaction({ onAdd }: Props) {
     setOpen(false);
   }
 
+  if (trips.length === 0) {
+    return (
+      <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-6 text-center">
+        <p className="text-[var(--color-text-secondary)] text-sm">Voeg eerst een reis toe om kosten bij te houden</p>
+      </div>
+    );
+  }
+
   if (!open) {
     return (
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => { setTripId(activeTrip ?? trips[0]?.id ?? ''); setOpen(true); }}
         className="w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 cursor-pointer border-0"
         style={{ background: 'var(--color-primary)' }}
       >
-        <Plus className="w-5 h-5" /> Transactie toevoegen
+        <Plus className="w-5 h-5" /> Kosten toevoegen
       </button>
     );
   }
@@ -50,7 +62,7 @@ export function AddTransaction({ onAdd }: Props) {
   return (
     <div className="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-4">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="font-bold text-base">Nieuwe transactie</h3>
+        <h3 className="font-bold text-base">Nieuwe reiskosten</h3>
         <button onClick={() => setOpen(false)} className="p-1 cursor-pointer bg-transparent border-0 text-[var(--color-text)]">
           <X className="w-5 h-5" />
         </button>
@@ -73,6 +85,18 @@ export function AddTransaction({ onAdd }: Props) {
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <select
+          value={tripId}
+          onChange={e => setTripId(e.target.value)}
+          required
+          className="w-full px-3 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-text)] text-sm"
+        >
+          <option value="">Kies reis...</option>
+          {trips.map(t => (
+            <option key={t.id} value={t.id}>{t.name} — {t.destination}</option>
+          ))}
+        </select>
+
         <input
           type="number"
           step="0.01"
@@ -98,7 +122,7 @@ export function AddTransaction({ onAdd }: Props) {
 
         <input
           type="text"
-          placeholder="Beschrijving (optioneel)"
+          placeholder="Beschrijving (bijv. KLM retour Amsterdam-Bali)"
           value={description}
           onChange={e => setDescription(e.target.value)}
           className="w-full px-3 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-text)] text-sm"
@@ -116,7 +140,7 @@ export function AddTransaction({ onAdd }: Props) {
           className="w-full py-2.5 rounded-lg font-semibold text-white cursor-pointer border-0"
           style={{ background: type === 'expense' ? 'var(--color-danger)' : 'var(--color-success)' }}
         >
-          {type === 'expense' ? 'Uitgave' : 'Inkomen'} opslaan
+          Opslaan
         </button>
       </form>
     </div>

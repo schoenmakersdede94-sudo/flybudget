@@ -8,11 +8,13 @@ function fmt(n: number): string {
 
 interface Props {
   transactions: Transaction[];
-  month: string;
+  activeTrip: string | null;
 }
 
-export function SpendingChart({ transactions, month }: Props) {
-  const expenses = transactions.filter(t => t.type === 'expense' && t.date.startsWith(month));
+export function SpendingChart({ transactions, activeTrip }: Props) {
+  const expenses = transactions.filter(t =>
+    t.type === 'expense' && (activeTrip ? t.tripId === activeTrip : true)
+  );
 
   const byCategory = expenses.reduce<Record<string, number>>((acc, tx) => {
     acc[tx.category] = (acc[tx.category] ?? 0) + tx.amount;

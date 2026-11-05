@@ -9,7 +9,7 @@ export function Header() {
         </div>
         <div>
           <h1 className="text-xl font-bold leading-tight">FlyBudget</h1>
-          <p className="text-xs text-[var(--color-text-secondary)]">Jouw persoonlijke budget tracker</p>
+          <p className="text-xs text-[var(--color-text-secondary)]">Beheer je reisbudget per vlucht</p>
         </div>
       </div>
     </header>

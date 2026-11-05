@@ -7,13 +7,16 @@ export interface Transaction {
   category: string;
   description: string;
   date: string;
+  tripId?: string;
 }
 
-export interface Budget {
+export interface Trip {
   id: string;
-  category: string;
-  limit: number;
-  month: string;
+  name: string;
+  destination: string;
+  startDate: string;
+  endDate: string;
+  budget: number;
 }
 
 export interface CategoryConfig {

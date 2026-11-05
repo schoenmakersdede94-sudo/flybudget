@@ -1,5 +1,5 @@
-import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-react';
-import type { Transaction } from '../types';
+import { Plane, TrendingDown, Wallet, Target } from 'lucide-react';
+import type { Transaction, Trip } from '../types';
 
 function fmt(n: number): string {
   return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(n);
@@ -7,21 +7,30 @@ function fmt(n: number): string {
 
 interface Props {
   transactions: Transaction[];
-  month: string;
+  trips: Trip[];
+  activeTrip: string | null;
 }
 
-export function StatsCards({ transactions, month }: Props) {
-  const monthTx = transactions.filter(t => t.date.startsWith(month));
-  const income = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const expenses = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-  const balance = income - expenses;
-  const savings = balance > 0 ? balance : 0;
+export function StatsCards({ transactions, trips, activeTrip }: Props) {
+  const filtered = activeTrip
+    ? transactions.filter(t => t.tripId === activeTrip)
+    : transactions;
+
+  const budget = activeTrip
+    ? (trips.find(t => t.id === activeTrip)?.budget ?? 0)
+    : trips.reduce((s, t) => s + t.budget, 0);
+
+  const spent = filtered.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const income = filtered.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const remaining = budget - spent + income;
+
+  const tripCount = activeTrip ? 1 : trips.length;
 
   const cards = [
-    { label: 'Inkomen', value: fmt(income), icon: TrendingUp, color: 'var(--color-success)' },
-    { label: 'Uitgaven', value: fmt(expenses), icon: TrendingDown, color: 'var(--color-danger)' },
-    { label: 'Balans', value: fmt(balance), icon: Wallet, color: balance >= 0 ? 'var(--color-success)' : 'var(--color-danger)' },
-    { label: 'Bespaard', value: fmt(savings), icon: PiggyBank, color: 'var(--color-primary)' },
+    { label: 'Reizen', value: String(tripCount), icon: Plane, color: 'var(--color-primary)' },
+    { label: 'Uitgegeven', value: fmt(spent), icon: TrendingDown, color: 'var(--color-danger)' },
+    { label: 'Budget', value: fmt(budget), icon: Target, color: 'var(--color-warning)' },
+    { label: 'Resterend', value: fmt(remaining), icon: Wallet, color: remaining >= 0 ? 'var(--color-success)' : 'var(--color-danger)' },
   ];
 
   return (
