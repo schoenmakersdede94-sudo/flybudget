@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlyBudget - Goedkope Vluchten Europa</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+<style>
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --fg: #1a1d23;
+  --fg-muted: #6b7280;
+  --accent: #0066ff;
+  --accent-light: #e8f0ff;
+  --border: #e5e7eb;
+  --success: #059669;
+  --warn: #d97706;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1117; --surface: #1a1d27; --fg: #e8eaed; --fg-muted: #8b8fa3;
+    --accent: #4d94ff; --accent-light: #1a2744; --border: #2a2d3a;
+    --success: #34d399; --warn: #fbbf24; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1117; --surface: #1a1d27; --fg: #e8eaed; --fg-muted: #8b8fa3;
+  --accent: #4d94ff; --accent-light: #1a2744; --border: #2a2d3a;
+  --success: #34d399; --warn: #fbbf24; color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); padding: 0 16px; line-height: 1.5; }
+.container { max-width: 960px; margin: 0 auto; padding: 24px 0 48px; }
+
+/* Top bar */
+.top-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo { width: 36px; height: 36px; background: var(--accent); border-radius: 10px; display: grid; place-items: center; }
+.logo svg { width: 20px; height: 20px; }
+.brand h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+.auth-area { display: flex; align-items: center; gap: 8px; }
+.auth-btn { padding: 8px 18px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--fg); font-family: var(--font-body); font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+.auth-btn:hover { border-color: var(--accent); }
+.auth-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.user-pill { display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 20px; background: var(--accent-light); font-size: 0.85rem; font-weight: 500; color: var(--accent); }
+.user-pill .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 0.7rem; font-weight: 700; }
+.logout-btn { background: none; border: none; color: var(--fg-muted); cursor: pointer; font-size: 0.8rem; padding: 4px 8px; font-family: var(--font-body); border-radius: 6px; }
+.logout-btn:hover { color: var(--fg); }
+
+/* Search */
+.search-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 32px; }
+.search-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: end; margin-bottom: 16px; }
+@media (max-width: 600px) { .search-row { grid-template-columns: 1fr; } .swap-btn { transform: rotate(90deg); } }
+.field label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-muted); margin-bottom: 6px; }
+.field input, .field select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 0.95rem; outline: none; }
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.swap-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg); color: var(--fg-muted); cursor: pointer; display: grid; place-items: center; align-self: end; }
+.swap-btn:hover { border-color: var(--accent); color: var(--accent); }
+.search-details { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+@media (max-width: 600px) { .search-details { grid-template-columns: 1fr 1fr; } }
+.search-btn { padding: 10px 28px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-family: var(--font-body); font-size: 0.95rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.search-btn:hover { opacity: 0.88; }
+.search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Toolbar */
+.toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.result-count { font-size: 0.875rem; color: var(--fg-muted); }
+.result-count strong { color: var(--fg); font-weight: 600; }
+.source-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.source-badge { padding: 3px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; background: var(--accent-light); color: var(--accent); }
+.source-badge.warn { background: #fef3c7; color: #92400e; }
+.sort-bar { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+.sort-btn { padding: 6px 14px; border: none; border-radius: 8px; background: transparent; color: var(--fg-muted); font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; cursor: pointer; }
+.sort-btn.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+
+/* Filters */
+.filters-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.filter-chip { padding: 6px 14px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface); color: var(--fg); font-family: var(--font-body); font-size: 0.8rem; font-weight: 500; cursor: pointer; user-select: none; }
+.filter-chip:hover { border-color: var(--accent); }
+.filter-chip.active { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+
+/* Flight cards */
+.flights-list { display: flex; flex-direction: column; gap: 12px; }
+.flight-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 24px; display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 20px; align-items: center; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
+.flight-card:hover { border-color: var(--accent); box-shadow: 0 2px 16px rgba(0,102,255,0.08); }
+.flight-card.cheapest { border-left: 3px solid var(--success); }
+@media (max-width: 600px) { .flight-card { grid-template-columns: 1fr; gap: 14px; padding: 16px; } }
+.flight-leg { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.airline-logo { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; font-size: 0.7rem; font-weight: 700; color: #fff; flex-shrink: 0; background-size: contain; background-position: center; background-repeat: no-repeat; }
+.leg-info { min-width: 0; }
+.time-row { display: flex; align-items: baseline; gap: 6px; }
+.dep-time, .arr-time { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.day-offset { font-size: 0.7rem; color: var(--warn); font-weight: 600; }
+.airport-codes { font-family: var(--font-mono); font-size: 0.75rem; color: var(--fg-muted); letter-spacing: 0.04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.route-visual { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 100px; }
+.route-line { width: 100%; height: 2px; background: var(--border); position: relative; }
+.route-line::before, .route-line::after { content: ''; position: absolute; width: 6px; height: 6px; border-radius: 50%; background: var(--fg-muted); top: 50%; transform: translateY(-50%); }
+.route-line::before { left: 0; }
+.route-line::after { right: 0; }
+.route-line .stop-dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: var(--warn); top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.duration { font-size: 0.75rem; color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+.stops-label { font-size: 0.7rem; font-weight: 600; }
+.stops-direct { color: var(--success); }
+.stops-has { color: var(--warn); }
+.price-section { text-align: right; min-width: 0; }
+@media (max-width: 600px) { .price-section { text-align: left; display: flex; align-items: center; justify-content: space-between; } }
+.price { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.price-label { font-size: 0.7rem; color: var(--fg-muted); }
+.best-tag { display: inline-block; padding: 2px 8px; border-radius: 6px; background: #dcfce7; color: #15803d; font-size: 0.7rem; font-weight: 600; margin-top: 4px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .best-tag { background: #052e16; color: #4ade80; } }
+:root[data-theme="dark"] .best-tag { background: #052e16; color: #4ade80; }
+.select-btn { margin-top: 8px; padding: 8px 20px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+.select-btn:hover { opacity: 0.88; }
+
+/* Loading */
+.status-msg { text-align: center; padding: 60px 20px; color: var(--fg-muted); }
+.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-banner { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; margin-bottom: 16px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .error-banner { background: #2d1b1b; color: #f87171; border-color: #5c2020; } }
+:root[data-theme="dark"] .error-banner { background: #2d1b1b; color: #f87171; border-color: #5c2020; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: grid; place-items: center; z-index: 100; padding: 16px; backdrop-filter: blur(4px); }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; width: 100%; max-width: 400px; position: relative; }
+.modal h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
+.modal p { color: var(--fg-muted); font-size: 0.875rem; margin-bottom: 20px; }
+.modal .field { margin-bottom: 14px; }
+.modal .close-modal { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--fg-muted); cursor: pointer; font-size: 1.2rem; line-height: 1; }
+.modal .close-modal:hover { color: var(--fg); }
+.modal .submit-btn { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-family: var(--font-body); font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+.modal .submit-btn:hover { opacity: 0.88; }
+.modal .switch-link { text-align: center; margin-top: 14px; font-size: 0.85rem; color: var(--fg-muted); }
+.modal .switch-link a { color: var(--accent); cursor: pointer; text-decoration: none; font-weight: 500; }
+.modal .error-msg { background: #fef2f2; color: #dc2626; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 12px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .modal .error-msg { background: #2d1b1b; color: #f87171; } }
+:root[data-theme="dark"] .modal .error-msg { background: #2d1b1b; color: #f87171; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--success); color: #fff; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; z-index: 200; box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: opacity 0.3s; }
+
+/* Baggage panel */
+.bag-toggle { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--fg-muted); font-family: var(--font-body); font-size: 0.72rem; cursor: pointer; }
+.bag-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.bag-panel { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 600px) { .bag-panel { grid-template-columns: 1fr; } }
+.bag-section h4 { font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; }
+.bag-options { display: flex; flex-direction: column; gap: 8px; }
+.bag-option { padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: flex-start; gap: 10px; font-size: 0.82rem; }
+.bag-option.tier-gratis { border-color: var(--success); background: color-mix(in srgb, var(--success) 6%, transparent); }
+.bag-option.tier-cabin { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.bag-option.tier-checked { border-color: var(--border); }
+.bag-option-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1; padding-top: 1px; }
+.bag-option-body { flex: 1; min-width: 0; }
+.bag-option-header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.bag-option-name { font-weight: 600; font-size: 0.82rem; }
+.bag-option-price { font-weight: 700; font-size: 0.82rem; white-space: nowrap; }
+.bag-option-price.free { color: var(--success); }
+.bag-option-details { font-size: 0.72rem; color: var(--fg-muted); margin-top: 2px; }
+.bag-option-desc { font-size: 0.72rem; color: var(--fg-muted); margin-top: 3px; }
+.bag-option-warn { font-size: 0.7rem; color: #dc2626; margin-top: 3px; font-weight: 500; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bag-option-warn { color: #f87171; } }
+:root[data-theme="dark"] .bag-option-warn { color: #f87171; }
+.bag-tip { padding: 10px 12px; border-radius: 8px; background: var(--accent-light); font-size: 0.8rem; line-height: 1.5; }
+.bag-tip.highlight { background: #dcfce7; border: 1px solid #86efac; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bag-tip.highlight { background: #052e16; border-color: #166534; } }
+:root[data-theme="dark"] .bag-tip.highlight { background: #052e16; border-color: #166534; }
+.bag-tip-title { font-weight: 600; margin-bottom: 2px; }
+
+/* Autocomplete */
+.field { position: relative; }
+.ac-list { position: absolute; top: 100%; left: 0; right: 0; z-index: 50; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-top: 4px; max-height: 260px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.ac-item { padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+.ac-item:hover, .ac-item.active { background: var(--accent-light); }
+.ac-item .ac-code { font-family: var(--font-mono); font-weight: 700; font-size: 0.8rem; color: var(--accent); min-width: 36px; }
+.ac-item .ac-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ac-item .ac-country { font-size: 0.75rem; color: var(--fg-muted); }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="top-bar">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.1z"/></svg>
+      </div>
+      <h1>FlyBudget</h1>
+    </div>
+    <div class="auth-area" id="authArea"></div>
+  </div>
+
+  <form class="search-panel" id="searchForm">
+    <div class="search-row">
+      <div class="field" id="originField">
+        <label for="origin">Vertrek</label>
+        <input type="text" id="origin" placeholder="Typ stad of luchthaven..." value="Amsterdam Schiphol (AMS)" autocomplete="off">
+        <input type="hidden" id="originCode" value="AMS">
+        <div class="ac-list" id="originAc" hidden></div>
+      </div>
+      <button type="button" class="swap-btn" onclick="swapCities()" aria-label="Wissel vertrek en bestemming">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16l-4-4 4-4"/><path d="M3 12h18"/><path d="M17 8l4 4-4 4"/></svg>
+      </button>
+      <div class="field" id="destField">
+        <label for="destination">Bestemming</label>
+        <input type="text" id="destination" placeholder="Typ stad of luchthaven..." value="Barcelona El Prat (BCN)" autocomplete="off">
+        <input type="hidden" id="destCode" value="BCN">
+        <div class="ac-list" id="destAc" hidden></div>
+      </div>
+    </div>
+    <div class="search-details">
+      <div class="field">
+        <label for="departDate">Heendatum</label>
+        <input type="date" id="departDate" value="2026-12-20">
+      </div>
+      <div class="field">
+        <label for="returnDate">Terugreis</label>
+        <input type="date" id="returnDate" value="2026-12-27">
+      </div>
+      <div class="field">
+        <label for="passengers">Reizigers</label>
+        <select id="passengers">
+          <option value="1-0">1 volwassene</option>
+          <option value="2-0" selected>2 volwassenen</option>
+          <option value="2-1">2 volw. + 1 kind</option>
+          <option value="2-2">2 volw. + 2 kinderen</option>
+        </select>
+      </div>
+      <button type="submit" class="search-btn" id="searchBtn">Zoeken</button>
+    </div>
+  </form>
+
+  <div id="errors"></div>
+
+  <div class="toolbar" id="toolbar" hidden>
+    <div>
+      <div class="result-count" id="resultCount"></div>
+      <div class="source-badges" id="sourceBadges"></div>
+    </div>
+    <div class="sort-bar">
+      <button class="sort-btn active" data-sort="price" onclick="sortBy(this)">Prijs</button>
+      <button class="sort-btn" data-sort="duration" onclick="sortBy(this)">Reistijd</button>
+      <button class="sort-btn" data-sort="departure" onclick="sortBy(this)">Vertrektijd</button>
+    </div>
+  </div>
+
+  <div class="filters-row" id="filtersRow" hidden>
+    <button class="filter-chip active" data-filter="all" onclick="filterBy(this)">Alle</button>
+    <button class="filter-chip" data-filter="direct" onclick="filterBy(this)">Direct</button>
+    <button class="filter-chip" data-filter="1stop" onclick="filterBy(this)">1 tussenstop</button>
+    <button class="filter-chip" data-filter="ryanair" onclick="filterBy(this)">Ryanair</button>
+    <button class="filter-chip" data-filter="vueling" onclick="filterBy(this)">Vueling</button>
+    <button class="filter-chip" data-filter="eurowings" onclick="filterBy(this)">Eurowings</button>
+  </div>
+
+  <div class="flights-list" id="flightsList">
+    <div class="status-msg"><p>Zoek naar vluchten om te beginnen.</p></div>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal-overlay" id="loginModal" hidden>
+  <div class="modal">
+    <button class="close-modal" onclick="closeModals()">&times;</button>
+    <h2>Welkom terug</h2>
+    <p>Log in om je zoekopdrachten te bewaren en sneller te boeken.</p>
+    <div class="error-msg" id="loginError" hidden></div>
+    <form id="loginForm">
+      <div class="field"><label for="loginEmail">E-mailadres</label><input type="email" id="loginEmail" placeholder="je@email.nl" required></div>
+      <div class="field"><label for="loginPass">Wachtwoord</label><input type="password" id="loginPass" placeholder="Je wachtwoord" required></div>
+      <button type="submit" class="submit-btn">Inloggen</button>
+    </form>
+    <div class="switch-link">Nog geen account? <a onclick="showRegister()">Registreer gratis</a></div>
+  </div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal-overlay" id="registerModal" hidden>
+  <div class="modal">
+    <button class="close-modal" onclick="closeModals()">&times;</button>
+    <h2>Account aanmaken</h2>
+    <p>Maak gratis een account aan en bewaar je favoriete vluchten.</p>
+    <div class="error-msg" id="registerError" hidden></div>
+    <form id="registerForm">
+      <div class="field"><label for="regName">Volledige naam</label><input type="text" id="regName" placeholder="Jan de Vries" required></div>
+      <div class="field"><label for="regEmail">E-mailadres</label><input type="email" id="regEmail" placeholder="je@email.nl" required></div>
+      <div class="field"><label for="regPass">Wachtwoord</label><input type="password" id="regPass" placeholder="Min. 6 tekens" required minlength="6"></div>
+      <button type="submit" class="submit-btn">Account aanmaken</button>
+    </form>
+    <div class="switch-link">Al een account? <a onclick="showLogin()">Log in</a></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+let currentUser = null;
+let authToken = null;
+let allFlights = [];
+let currentSort = 'price';
+let currentFilter = 'all';
+
+// Autocomplete
+let acTimeout = null;
+function setupAutocomplete(inputId, codeId, listId) {
+  const input = document.getElementById(inputId);
+  const codeInput = document.getElementById(codeId);
+  const list = document.getElementById(listId);
+  let activeIdx = -1;
+
+  input.addEventListener('input', () => {
+    clearTimeout(acTimeout);
+    const q = input.value.trim();
+    if (q.length < 2) { list.hidden = true; return; }
+    acTimeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/airports?q=${encodeURIComponent(q)}`);
+        const airports = await res.json();
+        if (!airports.length) { list.hidden = true; return; }
+        activeIdx = -1;
+        list.innerHTML = airports.map((a, i) =>
+          `<div class="ac-item" data-idx="${i}" data-code="${a.code}" data-label="${a.name} (${a.code})">
+            <span class="ac-code">${a.code}</span>
+            <span class="ac-name">${a.city} – ${a.name}</span>
+            <span class="ac-country">${a.country}</span>
+          </div>`
+        ).join('');
+        list.hidden = false;
+
+        list.querySelectorAll('.ac-item').forEach(item => {
+          item.addEventListener('mousedown', e => {
+            e.preventDefault();
+            selectAc(input, codeInput, list, item.dataset.code, item.dataset.label);
+          });
+        });
+      } catch(e) { list.hidden = true; }
+    }, 200);
+  });
+
+  input.addEventListener('keydown', e => {
+    const items = list.querySelectorAll('.ac-item');
+    if (list.hidden || !items.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); highlightAc(items, activeIdx); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); highlightAc(items, activeIdx); }
+    else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); const item = items[activeIdx]; selectAc(input, codeInput, list, item.dataset.code, item.dataset.label); }
+    else if (e.key === 'Escape') { list.hidden = true; }
+  });
+
+  input.addEventListener('blur', () => { setTimeout(() => list.hidden = true, 200); });
+  input.addEventListener('focus', () => { if (input.value.length >= 2) input.dispatchEvent(new Event('input')); });
+}
+
+function selectAc(input, codeInput, list, code, label) {
+  input.value = label;
+  codeInput.value = code;
+  list.hidden = true;
+}
+
+function highlightAc(items, idx) {
+  items.forEach((item, i) => item.classList.toggle('active', i === idx));
+}
+
+setupAutocomplete('origin', 'originCode', 'originAc');
+setupAutocomplete('destination', 'destCode', 'destAc');
+
+// Baggage info cache
+let baggageData = null;
+fetch('/api/baggage').then(r => r.json()).then(d => baggageData = d).catch(() => {});
+
+function toggleBagPanel(cardEl, airline) {
+  const existing = cardEl.querySelector('.bag-panel');
+  if (existing) { existing.remove(); return; }
+  if (!baggageData) return;
+
+  const key = airline.toLowerCase();
+  let info = null;
+  if (key.includes('ryanair')) info = baggageData.ryanair;
+  else if (key.includes('vueling')) info = baggageData.vueling;
+  else if (key.includes('eurowings')) info = baggageData.eurowings;
+  if (!info) return;
+
+  const panel = document.createElement('div');
+  panel.className = 'bag-panel';
+
+  const left = document.createElement('div');
+  left.innerHTML = `
+    <div class="bag-section">
+      <h4 style="color:${info.color || 'var(--fg)'}">Bagage-opties ${info.airline}</h4>
+    </div>
+    <div class="bag-options">
+      ${info.options.map(opt => `
+        <div class="bag-option tier-${opt.tier}">
+          <span class="bag-option-icon">${opt.icon}</span>
+          <div class="bag-option-body">
+            <div class="bag-option-header">
+              <span class="bag-option-name">${opt.name}</span>
+              <span class="bag-option-price${opt.priceNum === 0 ? ' free' : ''}">${opt.price}</span>
+            </div>
+            <div class="bag-option-details">${opt.size} · ${opt.weight}</div>
+            <div class="bag-option-desc">${opt.description}</div>
+            ${opt.warning ? `<div class="bag-option-warn">⚠ ${opt.warning}</div>` : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  const right = document.createElement('div');
+  const tips = [...info.tips];
+  if (info.seatTip) tips.unshift(info.seatTip);
+  right.innerHTML = `
+    <div class="bag-section"><h4>Tips & tricks</h4></div>
+    ${tips.map(t => `
+      <div class="bag-tip${t.highlight ? ' highlight' : ''}" style="margin-bottom:8px">
+        <div class="bag-tip-title">${t.icon} ${t.title}</div>
+        <div>${t.text}</div>
+      </div>
+    `).join('')}
+  `;
+
+  panel.appendChild(left);
+  panel.appendChild(right);
+  cardEl.appendChild(panel);
+}
+
+const AIRLINE_COLORS = {
+  'ryanair': '#073590', 'vueling': '#f5bc00', 'eurowings': '#a1145c',
+  'easyjet': '#ff6600', 'transavia': '#00a651', 'wizz air': '#ce2b73',
+  'klm': '#00a1de', 'lufthansa': '#05164d', 'iberia': '#d71a28',
+  'air france': '#002157', 'tap': '#00806a', 'norwegian': '#d81939',
+};
+
+// Session restore
+try {
+  const saved = localStorage.getItem('flybudget_token');
+  if (saved) {
+    authToken = saved;
+    fetch('/api/me', { headers: { Authorization: `Bearer ${authToken}` } })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => { currentUser = data.user; updateAuthUI(); })
+      .catch(() => { authToken = null; localStorage.removeItem('flybudget_token'); updateAuthUI(); });
+  }
+} catch(e) {}
+updateAuthUI();
+
+function updateAuthUI() {
+  const area = document.getElementById('authArea');
+  if (currentUser) {
+    const initials = currentUser.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    area.innerHTML = `<div class="user-pill"><span class="avatar">${initials}</span>${currentUser.name.split(' ')[0]}</div><button class="logout-btn" onclick="doLogout()">Uitloggen</button>`;
+  } else {
+    area.innerHTML = `<button class="auth-btn" onclick="showLogin()">Inloggen</button><button class="auth-btn primary" onclick="showRegister()">Registreren</button>`;
+  }
+}
+
+function showLogin() { closeModals(); document.getElementById('loginModal').hidden = false; document.getElementById('loginEmail').focus(); }
+function showRegister() { closeModals(); document.getElementById('registerModal').hidden = false; document.getElementById('regName').focus(); }
+function closeModals() { document.getElementById('loginModal').hidden = true; document.getElementById('registerModal').hidden = true; document.querySelectorAll('.error-msg').forEach(e => e.hidden = true); }
+
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) closeModals(); }));
+
+document.getElementById('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const errEl = document.getElementById('loginError');
+  errEl.hidden = true;
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPass').value }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    authToken = data.token;
+    currentUser = data.user;
+    try { localStorage.setItem('flybudget_token', authToken); } catch(e) {}
+    closeModals();
+    updateAuthUI();
+    showToast('Welkom terug, ' + currentUser.name.split(' ')[0] + '!');
+  } catch(err) { errEl.textContent = err.message; errEl.hidden = false; }
+});
+
+document.getElementById('registerForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const errEl = document.getElementById('registerError');
+  errEl.hidden = true;
+  try {
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: document.getElementById('regName').value, email: document.getElementById('regEmail').value, password: document.getElementById('regPass').value }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    authToken = data.token;
+    currentUser = data.user;
+    try { localStorage.setItem('flybudget_token', authToken); } catch(e) {}
+    closeModals();
+    updateAuthUI();
+    showToast('Account aangemaakt! Welkom, ' + currentUser.name.split(' ')[0] + '.');
+  } catch(err) { errEl.textContent = err.message; errEl.hidden = false; }
+});
+
+function doLogout() {
+  currentUser = null; authToken = null;
+  try { localStorage.removeItem('flybudget_token'); } catch(e) {}
+  updateAuthUI();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.hidden = false;
+  setTimeout(() => t.hidden = true, 3000);
+}
+
+// Flight search
+document.getElementById('searchForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const origin = document.getElementById('originCode').value.trim().toUpperCase();
+  const dest = document.getElementById('destCode').value.trim().toUpperCase();
+  if (!origin || origin.length !== 3) { showToast('Kies een vertrek-luchthaven uit de lijst.'); return; }
+  if (!dest || dest.length !== 3) { showToast('Kies een bestemming uit de lijst.'); return; }
+  const dateOut = document.getElementById('departDate').value;
+  const dateIn = document.getElementById('returnDate').value;
+  const [adults, children] = document.getElementById('passengers').value.split('-').map(Number);
+
+  if (!origin || !dest || !dateOut) return;
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true; btn.textContent = 'Zoeken...';
+  document.getElementById('flightsList').innerHTML = `<div class="status-msg"><div class="spinner"></div><p>Vluchten zoeken bij Ryanair, Vueling, Eurowings...</p></div>`;
+  document.getElementById('toolbar').hidden = true;
+  document.getElementById('filtersRow').hidden = true;
+  document.getElementById('errors').innerHTML = '';
+
+  try {
+    const params = new URLSearchParams({ origin, destination: dest, dateOut, adults, children });
+    if (dateIn) params.set('dateIn', dateIn);
+    const res = await fetch(`/api/flights?${params}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    allFlights = data.flights || [];
+
+    // Show source badges
+    const badges = document.getElementById('sourceBadges');
+    badges.innerHTML = '';
+    for (const src of data.sources || []) {
+      const b = document.createElement('span');
+      b.className = 'source-badge';
+      b.textContent = src === 'ryanair' ? 'Ryanair API' : src === 'google_flights' ? 'Google Flights' : src;
+      badges.appendChild(b);
+    }
+    for (const err of data.errors || []) {
+      const b = document.createElement('span');
+      b.className = 'source-badge warn';
+      b.textContent = `${err.source}: niet beschikbaar`;
+      b.title = err.message;
+      badges.appendChild(b);
+    }
+
+    if (data.errors?.length) {
+      document.getElementById('errors').innerHTML = data.errors.map(e =>
+        `<div class="error-banner"><strong>${e.source}:</strong> ${e.message}</div>`
+      ).join('');
+    }
+
+    document.getElementById('toolbar').hidden = false;
+    document.getElementById('filtersRow').hidden = false;
+    currentSort = 'price'; currentFilter = 'all';
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === 'price'));
+    document.querySelectorAll('.filter-chip').forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
+    renderFlights();
+  } catch(err) {
+    document.getElementById('flightsList').innerHTML = `<div class="status-msg"><p style="color:#dc2626">${err.message}</p></div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Zoeken';
+  }
+});
+
+function renderFlights() {
+  let filtered = allFlights.filter(f => {
+    if (currentFilter === 'direct') return f.stops === 0;
+    if (currentFilter === '1stop') return f.stops > 0;
+    if (currentFilter === 'ryanair') return f.airline?.toLowerCase().includes('ryanair');
+    if (currentFilter === 'vueling') return f.airline?.toLowerCase().includes('vueling');
+    if (currentFilter === 'eurowings') return f.airline?.toLowerCase().includes('eurowings');
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    if (currentSort === 'price') return (a.price ?? 9999) - (b.price ?? 9999);
+    if (currentSort === 'duration') return (a.durationMinutes ?? 9999) - (b.durationMinutes ?? 9999);
+    if (currentSort === 'departure') return (a.departureTime || '').localeCompare(b.departureTime || '');
+    return 0;
+  });
+
+  const cheapestId = filtered.length ? filtered.reduce((min, f, i) => (f.price ?? 9999) < (min.price ?? 9999) ? { idx: i, price: f.price } : min, { idx: 0, price: filtered[0]?.price }).idx : -1;
+
+  document.getElementById('resultCount').innerHTML = `<strong>${filtered.length}</strong> ${filtered.length === 1 ? 'vlucht' : 'vluchten'} gevonden`;
+
+  const list = document.getElementById('flightsList');
+  if (!filtered.length) {
+    list.innerHTML = '<div class="status-msg"><p>Geen vluchten gevonden voor deze filters.</p></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map((f, i) => {
+    const depTime = formatTime(f.departureTime);
+    const arrTime = formatTime(f.arrivalTime);
+    const dayOff = getDayOffset(f.departureTime, f.arrivalTime);
+    const color = AIRLINE_COLORS[f.airline?.toLowerCase()] || '#666';
+    const code = f.airlineCode || f.airline?.slice(0, 2).toUpperCase() || '??';
+    const logoStyle = f.airlineLogo
+      ? `background-image:url(${f.airlineLogo});background-color:transparent`
+      : `background:${color}`;
+
+    return `<div class="flight-card${i === cheapestId ? ' cheapest' : ''}">
+      <div class="flight-leg">
+        <div class="airline-logo" style="${logoStyle}">${f.airlineLogo ? '' : code}</div>
+        <div class="leg-info">
+          <div class="time-row">
+            <span class="dep-time">${depTime}</span>
+            <span style="color:var(--fg-muted);font-size:0.8rem">&rarr;</span>
+            <span class="arr-time">${arrTime}</span>
+            ${dayOff > 0 ? `<span class="day-offset">+${dayOff}</span>` : ''}
+          </div>
+          <div class="airport-codes">${f.origin} – ${f.destination} · ${f.airline}</div>
+        </div>
+      </div>
+      <div class="route-visual">
+        <div class="duration">${f.duration}</div>
+        <div class="route-line">${f.stops ? '<span class="stop-dot"></span>' : ''}</div>
+        <span class="stops-label ${f.stops ? 'stops-has' : 'stops-direct'}">${f.stops ? f.stops + ' stop' + (f.stopCities?.length ? ' via ' + f.stopCities.join(', ') : '') : 'Direct'}</span>
+      </div>
+      <div></div>
+      <div class="price-section">
+        <div class="price">${f.price != null ? '€' + f.price : '–'}</div>
+        <div class="price-label">p.p.</div>
+        ${i === cheapestId ? '<div class="best-tag">Goedkoopst</div>' : ''}
+        <button class="bag-toggle" onclick="event.stopPropagation(); toggleBagPanel(this.closest('.flight-card'), '${f.airline}')">✈ Bagage-info</button>
+        <button class="select-btn" onclick="event.stopPropagation(); selectFlight(${i})">Selecteer</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function formatTime(dt) {
+  if (!dt) return '--:--';
+  const d = new Date(dt);
+  if (isNaN(d)) {
+    const match = dt.match(/(\d{2}):(\d{2})/);
+    return match ? match[0] : dt;
+  }
+  return d.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+}
+
+function getDayOffset(dep, arr) {
+  if (!dep || !arr) return 0;
+  const d1 = new Date(dep); const d2 = new Date(arr);
+  if (isNaN(d1) || isNaN(d2)) return 0;
+  const day1 = Math.floor(d1.getTime() / 86400000);
+  const day2 = Math.floor(d2.getTime() / 86400000);
+  return Math.max(0, day2 - day1);
+}
+
+function selectFlight(idx) {
+  if (!currentUser) { showLogin(); return; }
+  const f = allFlights[idx];
+
+  if (f.bookingUrl) {
+    showToast(`Doorsturen naar ${f.airline}...`);
+    setTimeout(() => { window.open(f.bookingUrl, '_blank'); }, 400);
+  } else {
+    // Fallback: haal deep link op via de server
+    const origin = document.getElementById('origin').value.trim().toUpperCase();
+    const dest = document.getElementById('destination').value.trim().toUpperCase();
+    const dateOut = document.getElementById('departDate').value;
+    const dateIn = document.getElementById('returnDate').value;
+    const [adults, children] = document.getElementById('passengers').value.split('-').map(Number);
+
+    const params = new URLSearchParams({ airline: f.airline, origin, destination: dest, dateOut, adults, children, token: authToken });
+    if (dateIn) params.set('dateIn', dateIn);
+
+    fetch(`/api/book?${params}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.bookingUrl) {
+          showToast(`Doorsturen naar ${data.airline}...`);
+          setTimeout(() => { window.open(data.bookingUrl, '_blank'); }, 400);
+        } else {
+          showToast(data.error || 'Kon geen boekingslink maken.');
+        }
+      })
+      .catch(() => showToast('Er ging iets mis.'));
+  }
+}
+
+function swapCities() {
+  const o = document.getElementById('origin'); const d = document.getElementById('destination');
+  const oc = document.getElementById('originCode'); const dc = document.getElementById('destCode');
+  [o.value, d.value] = [d.value, o.value];
+  [oc.value, dc.value] = [dc.value, oc.value];
+}
+function sortBy(btn) {
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); currentSort = btn.dataset.sort; renderFlights();
+}
+function filterBy(btn) {
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); currentFilter = btn.dataset.filter; renderFlights();
+}
+</script>
+</body>
+</html>
