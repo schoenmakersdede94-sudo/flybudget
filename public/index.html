@@ -273,7 +273,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); p
     <form id="loginForm">
       <div class="field"><label for="loginEmail">E-mailadres</label><input type="email" id="loginEmail" placeholder="je@email.nl" required></div>
       <div class="field"><label for="loginPass">Wachtwoord</label><input type="password" id="loginPass" placeholder="Je wachtwoord" required></div>
-      <button type="submit" class="submit-btn">Inloggen</button>
+      <button type="button" class="submit-btn" onclick="doLogin()">Inloggen</button>
     </form>
     <div class="switch-link">Nog geen account? <a onclick="showRegister()">Registreer gratis</a></div>
   </div>
@@ -290,7 +290,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); p
       <div class="field"><label for="regName">Volledige naam</label><input type="text" id="regName" placeholder="Jan de Vries" required></div>
       <div class="field"><label for="regEmail">E-mailadres</label><input type="email" id="regEmail" placeholder="je@email.nl" required></div>
       <div class="field"><label for="regPass">Wachtwoord</label><input type="password" id="regPass" placeholder="Min. 6 tekens" required minlength="6"></div>
-      <button type="submit" class="submit-btn">Account aanmaken</button>
+      <button type="button" class="submit-btn" onclick="doRegister()">Account aanmaken</button>
     </form>
     <div class="switch-link">Al een account? <a onclick="showLogin()">Log in</a></div>
   </div>
@@ -464,47 +464,48 @@ function closeModals() { document.getElementById('loginModal').hidden = true; do
 
 document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) closeModals(); }));
 
-document.getElementById('loginForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const errEl = document.getElementById('loginError');
+async function doLogin() {
+  var errEl = document.getElementById('loginError');
   errEl.hidden = true;
   try {
-    const res = await fetch('/api/login', {
+    var res = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPass').value }),
     });
-    const data = await res.json();
+    var data = await res.json();
     if (!res.ok) throw new Error(data.error);
     authToken = data.token;
     currentUser = data.user;
-    try { localStorage.setItem('flybudget_token', authToken); } catch(e) {}
+    try { localStorage.setItem('flybudget_token', authToken); } catch(x) {}
     closeModals();
     updateAuthUI();
     showToast('Welkom terug, ' + currentUser.name.split(' ')[0] + '!');
   } catch(err) { errEl.textContent = err.message; errEl.hidden = false; }
-});
+}
 
-document.getElementById('registerForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const errEl = document.getElementById('registerError');
+async function doRegister() {
+  var errEl = document.getElementById('registerError');
   errEl.hidden = true;
   try {
-    const res = await fetch('/api/register', {
+    var res = await fetch('/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: document.getElementById('regName').value, email: document.getElementById('regEmail').value, password: document.getElementById('regPass').value }),
     });
-    const data = await res.json();
+    var data = await res.json();
     if (!res.ok) throw new Error(data.error);
     authToken = data.token;
     currentUser = data.user;
-    try { localStorage.setItem('flybudget_token', authToken); } catch(e) {}
+    try { localStorage.setItem('flybudget_token', authToken); } catch(x) {}
     closeModals();
     updateAuthUI();
     showToast('Account aangemaakt! Welkom, ' + currentUser.name.split(' ')[0] + '.');
   } catch(err) { errEl.textContent = err.message; errEl.hidden = false; }
-});
+}
+
+document.getElementById('loginForm').addEventListener('submit', function(e) { e.preventDefault(); doLogin(); });
+document.getElementById('registerForm').addEventListener('submit', function(e) { e.preventDefault(); doRegister(); });
 
 function doLogout() {
   currentUser = null; authToken = null;
