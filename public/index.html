@@ -124,7 +124,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); p
 :root[data-theme="dark"] .error-banner { background: #2d1b1b; color: #f87171; border-color: #5c2020; }
 
 /* Modal */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: grid; place-items: center; z-index: 100; padding: 16px; backdrop-filter: blur(4px); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; place-items: center; z-index: 100; padding: 16px; backdrop-filter: blur(4px); }
+.modal-overlay.open { display: grid; }
 .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; width: 100%; max-width: 400px; position: relative; }
 .modal h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
 .modal p { color: var(--fg-muted); font-size: 0.875rem; margin-bottom: 20px; }
@@ -264,7 +265,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); p
 </div>
 
 <!-- Login Modal -->
-<div class="modal-overlay" id="loginModal" hidden>
+<div class="modal-overlay" id="loginModal">
   <div class="modal">
     <button class="close-modal" onclick="closeModals()">&times;</button>
     <h2>Welkom terug</h2>
@@ -280,7 +281,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); p
 </div>
 
 <!-- Register Modal -->
-<div class="modal-overlay" id="registerModal" hidden>
+<div class="modal-overlay" id="registerModal">
   <div class="modal">
     <button class="close-modal" onclick="closeModals()">&times;</button>
     <h2>Account aanmaken</h2>
@@ -458,9 +459,9 @@ function updateAuthUI() {
   }
 }
 
-function showLogin() { closeModals(); document.getElementById('loginModal').hidden = false; document.getElementById('loginEmail').focus(); }
-function showRegister() { closeModals(); document.getElementById('registerModal').hidden = false; document.getElementById('regName').focus(); }
-function closeModals() { document.getElementById('loginModal').hidden = true; document.getElementById('registerModal').hidden = true; document.querySelectorAll('.error-msg').forEach(e => e.hidden = true); }
+function showLogin() { closeModals(); document.getElementById('loginModal').classList.add('open'); document.getElementById('loginEmail').focus(); }
+function showRegister() { closeModals(); document.getElementById('registerModal').classList.add('open'); document.getElementById('regName').focus(); }
+function closeModals() { document.getElementById('loginModal').classList.remove('open'); document.getElementById('registerModal').classList.remove('open'); document.querySelectorAll('.error-msg').forEach(function(e) { e.hidden = true; }); }
 
 document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) closeModals(); }));
 
