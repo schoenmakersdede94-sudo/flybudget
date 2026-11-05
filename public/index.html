@@ -173,6 +173,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); p
 :root[data-theme="dark"] .bag-tip.highlight { background: #052e16; border-color: #166534; }
 .bag-tip-title { font-weight: 600; margin-bottom: 2px; }
 .price-disclaimer { text-align: center; padding: 12px 16px; font-size: 0.75rem; color: var(--fg-muted); margin-top: 16px; }
+.version-tag { text-align: center; font-size: 0.6rem; color: var(--fg-muted); opacity: 0.5; padding: 8px; }
 
 /* Autocomplete */
 .field { position: relative; }
@@ -258,6 +259,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); p
   <div class="flights-list" id="flightsList">
     <div class="status-msg"><p>Zoek naar vluchten om te beginnen.</p></div>
   </div>
+  <div class="version-tag">FlyBudget v2.1</div>
 </div>
 
 <!-- Login Modal -->
@@ -672,8 +674,8 @@ function renderFlights() {
         <div class="price-label">p.p.</div>
         ${i === cheapestId ? '<div class="best-tag">Goedkoopst</div>' : ''}
         <button class="bag-toggle" onclick="event.stopPropagation(); toggleBagPanel(this.closest('.flight-card'), '${f.airline}')">✈ Bagage-info</button>
-        <a class="select-btn" href="${f.bookingUrl || '#'}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Boeken</a>
-        ${f.airlineUrl ? `<a class="airline-link" href="${f.airlineUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Direct naar ${f.airline} &rarr;</a>` : ''}
+        <a class="select-btn" href="${f.bookingUrl || f.airlineUrl || '#'}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Bekijk op Google Flights</a>
+        <a class="airline-link" href="${f.airlineUrl || '#'}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Of direct naar ${f.airline} &rarr;</a>
       </div>
     </div>`;
   }).join('');
