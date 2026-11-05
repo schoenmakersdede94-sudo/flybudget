@@ -259,7 +259,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); p
   <div class="flights-list" id="flightsList">
     <div class="status-msg"><p>Zoek naar vluchten om te beginnen.</p></div>
   </div>
-  <div class="version-tag">FlyBudget v2.2</div>
+  <div class="version-tag">FlyBudget v2.3</div>
 </div>
 
 <!-- Login Modal -->
@@ -674,8 +674,8 @@ function renderFlights() {
         <div class="price-label">p.p.</div>
         ${i === cheapestId ? '<div class="best-tag">Goedkoopst</div>' : ''}
         <button class="bag-toggle" onclick="event.stopPropagation(); toggleBagPanel(this.closest('.flight-card'), '${f.airline}')">✈ Bagage-info</button>
-        <a class="select-btn" href="${f.bookingUrl || f.airlineUrl || '#'}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Bekijk op Google Flights</a>
-        <a class="airline-link" href="${f.airlineUrl || '#'}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Of direct naar ${f.airline} &rarr;</a>
+        <a class="select-btn" href="${f.airlineUrl || f.bookingUrl || '#'}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Boek bij ${f.airline}</a>
+        ${f.googleUrl ? `<a class="airline-link" href="${f.googleUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Of bekijk op Google Flights &rarr;</a>` : ''}
       </div>
     </div>`;
   }).join('');
