@@ -137,10 +137,6 @@ app.get('/api/ryanair/routes/:airport', async (req, res) => {
 
 // Direct booking redirect — user stays logged in, goes straight to airline
 app.get('/api/book', (req, res) => {
-  const token = req.headers.authorization?.replace('Bearer ', '') || req.query.token;
-  const session = sessions.get(token);
-  if (!session) return res.status(401).json({ error: 'Log in om te boeken.' });
-
   const { airline, origin, destination, dateOut, dateIn, adults, children } = req.query;
   if (!airline || !origin || !destination || !dateOut) {
     return res.status(400).json({ error: 'Missende parameters.' });

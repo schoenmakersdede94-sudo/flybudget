@@ -670,7 +670,6 @@ function getDayOffset(dep, arr) {
 }
 
 function selectFlight(idx) {
-  if (!currentUser) { showLogin(); return; }
   const f = allFlights[idx];
 
   if (f.bookingUrl) {
