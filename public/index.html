@@ -170,6 +170,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); p
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bag-tip.highlight { background: #052e16; border-color: #166534; } }
 :root[data-theme="dark"] .bag-tip.highlight { background: #052e16; border-color: #166534; }
 .bag-tip-title { font-weight: 600; margin-bottom: 2px; }
+.price-disclaimer { text-align: center; padding: 12px 16px; font-size: 0.75rem; color: var(--fg-muted); margin-top: 16px; }
 
 /* Autocomplete */
 .field { position: relative; }
@@ -250,14 +251,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); p
     </div>
   </div>
 
-  <div class="filters-row" id="filtersRow" hidden>
-    <button class="filter-chip active" data-filter="all" onclick="filterBy(this)">Alle</button>
-    <button class="filter-chip" data-filter="direct" onclick="filterBy(this)">Direct</button>
-    <button class="filter-chip" data-filter="1stop" onclick="filterBy(this)">1 tussenstop</button>
-    <button class="filter-chip" data-filter="ryanair" onclick="filterBy(this)">Ryanair</button>
-    <button class="filter-chip" data-filter="vueling" onclick="filterBy(this)">Vueling</button>
-    <button class="filter-chip" data-filter="eurowings" onclick="filterBy(this)">Eurowings</button>
-  </div>
+  <div class="filters-row" id="filtersRow" hidden></div>
 
   <div class="flights-list" id="flightsList">
     <div class="status-msg"><p>Zoek naar vluchten om te beginnen.</p></div>
@@ -380,9 +374,22 @@ function toggleBagPanel(cardEl, airline) {
 
   const key = airline.toLowerCase();
   let info = null;
-  if (key.includes('ryanair')) info = baggageData.ryanair;
-  else if (key.includes('vueling')) info = baggageData.vueling;
-  else if (key.includes('eurowings')) info = baggageData.eurowings;
+  for (const [bk, bv] of Object.entries(baggageData)) {
+    const bname = (bv.airline || bk).toLowerCase();
+    if (key.includes(bname) || bname.includes(key.split(' ')[0])) { info = bv; break; }
+  }
+  if (!info) {
+    const matches = [
+      ['ryanair', 'ryanair'], ['vueling', 'vueling'], ['eurowings', 'eurowings'],
+      ['klm', 'klm'], ['royal dutch', 'klm'], ['transavia', 'transavia'],
+      ['easyjet', 'easyjet'], ['easy jet', 'easyjet'], ['wizz', 'wizzair'],
+      ['norwegian', 'norwegian'], ['turkish', 'turkish'], ['lufthansa', 'lufthansa'],
+      ['air france', 'airfrance'], ['iberia', 'iberia'],
+    ];
+    for (const [m, k2] of matches) {
+      if (key.includes(m) && baggageData[k2]) { info = baggageData[k2]; break; }
+    }
+  }
   if (!info) return;
 
   const panel = document.createElement('div');
@@ -433,7 +440,11 @@ const AIRLINE_COLORS = {
   'ryanair': '#073590', 'vueling': '#f5bc00', 'eurowings': '#a1145c',
   'easyjet': '#ff6600', 'transavia': '#00a651', 'wizz air': '#ce2b73',
   'klm': '#00a1de', 'lufthansa': '#05164d', 'iberia': '#d71a28',
-  'air france': '#002157', 'tap': '#00806a', 'norwegian': '#d81939',
+  'air france': '#002157', 'tap portugal': '#00806a', 'tap air portugal': '#00806a',
+  'norwegian': '#d81939', 'turkish airlines': '#c8102e', 'swiss': '#e4002b',
+  'brussels airlines': '#e2001a', 'sas': '#000066', 'pegasus': '#ffcb05',
+  'aegean': '#00205b', 'volotea': '#43b02a', 'austrian': '#c8102e',
+  'british airways': '#075aaa', 'lot polish': '#003a6c',
 };
 
 // Session restore
@@ -534,7 +545,7 @@ document.getElementById('searchForm').addEventListener('submit', async e => {
 
   const btn = document.getElementById('searchBtn');
   btn.disabled = true; btn.textContent = 'Zoeken...';
-  document.getElementById('flightsList').innerHTML = `<div class="status-msg"><div class="spinner"></div><p>Vluchten zoeken bij Ryanair, Vueling, Eurowings...</p></div>`;
+  document.getElementById('flightsList').innerHTML = `<div class="status-msg"><div class="spinner"></div><p>Vluchten zoeken bij alle maatschappijen...</p></div>`;
   document.getElementById('toolbar').hidden = true;
   document.getElementById('filtersRow').hidden = true;
   document.getElementById('errors').innerHTML = '';
@@ -575,7 +586,7 @@ document.getElementById('searchForm').addEventListener('submit', async e => {
     document.getElementById('filtersRow').hidden = false;
     currentSort = 'price'; currentFilter = 'all';
     document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === 'price'));
-    document.querySelectorAll('.filter-chip').forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
+    buildFilterChips();
     renderFlights();
   } catch(err) {
     document.getElementById('flightsList').innerHTML = `<div class="status-msg"><p style="color:#dc2626">${err.message}</p></div>`;
@@ -584,13 +595,25 @@ document.getElementById('searchForm').addEventListener('submit', async e => {
   }
 });
 
+function buildFilterChips() {
+  const row = document.getElementById('filtersRow');
+  const airlines = [...new Set(allFlights.map(f => f.airline).filter(Boolean))].sort();
+  let html = `<button class="filter-chip active" data-filter="all" onclick="filterBy(this)">Alle</button>`;
+  html += `<button class="filter-chip" data-filter="direct" onclick="filterBy(this)">Direct</button>`;
+  if (allFlights.some(f => f.stops > 0)) {
+    html += `<button class="filter-chip" data-filter="1stop" onclick="filterBy(this)">1+ stop</button>`;
+  }
+  for (const a of airlines) {
+    html += `<button class="filter-chip" data-filter="airline:${a}" onclick="filterBy(this)">${a}</button>`;
+  }
+  row.innerHTML = html;
+}
+
 function renderFlights() {
   let filtered = allFlights.filter(f => {
     if (currentFilter === 'direct') return f.stops === 0;
     if (currentFilter === '1stop') return f.stops > 0;
-    if (currentFilter === 'ryanair') return f.airline?.toLowerCase().includes('ryanair');
-    if (currentFilter === 'vueling') return f.airline?.toLowerCase().includes('vueling');
-    if (currentFilter === 'eurowings') return f.airline?.toLowerCase().includes('eurowings');
+    if (currentFilter.startsWith('airline:')) return f.airline === currentFilter.slice(8);
     return true;
   });
 
@@ -611,7 +634,7 @@ function renderFlights() {
     return;
   }
 
-  list.innerHTML = filtered.map((f, i) => {
+  let cardsHtml = filtered.map((f, i) => {
     const depTime = formatTime(f.departureTime);
     const arrTime = formatTime(f.arrivalTime);
     const dayOff = getDayOffset(f.departureTime, f.arrivalTime);
@@ -649,6 +672,8 @@ function renderFlights() {
       </div>
     </div>`;
   }).join('');
+  cardsHtml += `<div class="price-disclaimer">Prijzen zijn indicatief en kunnen afwijken op de website van de maatschappij. Je wordt altijd direct doorgestuurd naar de officiële website om te boeken.</div>`;
+  list.innerHTML = cardsHtml;
 }
 
 function formatTime(dt) {
@@ -677,14 +702,13 @@ function selectFlight(idx) {
     showToast(`Doorsturen naar ${f.airline}...`);
     setTimeout(() => { window.open(f.bookingUrl, '_blank'); }, 400);
   } else {
-    // Fallback: haal deep link op via de server
-    const origin = document.getElementById('origin').value.trim().toUpperCase();
-    const dest = document.getElementById('destination').value.trim().toUpperCase();
+    const origin = document.getElementById('originCode').value.trim().toUpperCase();
+    const dest = document.getElementById('destCode').value.trim().toUpperCase();
     const dateOut = document.getElementById('departDate').value;
     const dateIn = document.getElementById('returnDate').value;
     const [adults, children] = document.getElementById('passengers').value.split('-').map(Number);
 
-    const params = new URLSearchParams({ airline: f.airline, origin, destination: dest, dateOut, adults, children, token: authToken });
+    const params = new URLSearchParams({ airline: f.airline, origin, destination: dest, dateOut, adults, children });
     if (dateIn) params.set('dateIn', dateIn);
 
     fetch(`/api/book?${params}`)

@@ -206,12 +206,462 @@ export const AIRLINE_BAGGAGE = {
     ],
     seatTip: null,
   },
+
+  klm: {
+    airline: "KLM",
+    color: "#00A1DE",
+    options: [
+      {
+        tier: "gratis",
+        name: "Kleine tas (handtas/rugzak)",
+        size: "40 × 30 × 15 cm",
+        weight: "geen limiet",
+        price: "Gratis",
+        priceNum: 0,
+        description: "Past onder de stoel. Bij elk ticket inbegrepen.",
+        icon: "👜",
+      },
+      {
+        tier: "cabin",
+        name: "Handbagage (trolley)",
+        size: "55 × 35 × 25 cm",
+        weight: "max 12 kg",
+        price: "Gratis bij Economy",
+        priceNum: 0,
+        description: "1 handbagage + 1 accessoire. Bij alle Economy tickets inbegrepen.",
+        icon: "🧳",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 23 kg",
+        size: "max 158 cm (L+B+H)",
+        weight: "max 23 kg",
+        price: "€30 – €90",
+        priceNum: 30,
+        description: "1 koffer inbegrepen bij Economy Standard/Flex. Bij Light apart bijboeken.",
+        icon: "📦",
+      },
+    ],
+    tips: [
+      {
+        icon: "💡",
+        title: "Economy Light = geen ruimbagage",
+        text: "Het goedkoopste KLM-tarief bevat GEEN ruimbagage. Boek Economy Standard als je een koffer nodig hebt — vaak voordeliger dan apart bijboeken.",
+        highlight: true,
+      },
+      {
+        icon: "⚠️",
+        title: "Overgewicht: €75 per extra kg",
+        text: "Te zware of extra koffers zijn bij KLM erg duur. Weeg thuis!",
+        highlight: false,
+      },
+    ],
+    seatTip: null,
+  },
+
+  transavia: {
+    airline: "Transavia",
+    color: "#00B140",
+    options: [
+      {
+        tier: "gratis",
+        name: "Kleine tas",
+        size: "40 × 30 × 20 cm",
+        weight: "max 10 kg",
+        price: "Gratis",
+        priceNum: 0,
+        description: "Past onder de stoel. Bij elk ticket inbegrepen.",
+        icon: "👜",
+      },
+      {
+        tier: "cabin",
+        name: "Handbagage (trolley)",
+        size: "55 × 40 × 25 cm",
+        weight: "max 10 kg",
+        price: "Inbegrepen bij Plus",
+        priceNum: 0,
+        description: "Alleen bij Plus-tarief. Bij Basic-tarief niet inbegrepen.",
+        icon: "🧳",
+        warning: "Bij Basic-tarief mag ALLEEN een kleine tas mee in de cabine!",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 15 kg",
+        size: "Ruimkoffer",
+        weight: "max 15 kg",
+        price: "€8 – €44",
+        priceNum: 8,
+        description: "Lichte koffer. Online altijd goedkoper.",
+        icon: "📦",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 20 kg",
+        size: "Ruimkoffer",
+        weight: "max 20 kg",
+        price: "€10 – €55",
+        priceNum: 10,
+        description: "Standaard koffer. Inbegrepen bij Plus-tarief.",
+        icon: "📦",
+      },
+    ],
+    tips: [
+      {
+        icon: "💡",
+        title: "Plus-tarief bevat alles",
+        text: "Plus bevat handbagage + 20 kg ruimbagage + stoelkeuze. Vergelijk met Basic + losse bagage!",
+        highlight: true,
+      },
+      {
+        icon: "⚠️",
+        title: "Op de luchthaven 2-3x duurder",
+        text: "Bagage bijboeken op de luchthaven is veel duurder dan online. Altijd vooraf regelen!",
+        highlight: false,
+      },
+    ],
+    seatTip: null,
+  },
+
+  easyjet: {
+    airline: "easyJet",
+    color: "#FF6600",
+    options: [
+      {
+        tier: "gratis",
+        name: "Kleine cabinetas",
+        size: "45 × 36 × 20 cm",
+        weight: "geen limiet",
+        price: "Gratis",
+        priceNum: 0,
+        description: "Past onder de stoel. Bij elk ticket inbegrepen.",
+        icon: "👜",
+      },
+      {
+        tier: "cabin",
+        name: "Overhead handbagage",
+        size: "56 × 45 × 25 cm",
+        weight: "max 15 kg",
+        price: "€6 – €48",
+        priceNum: 6,
+        description: "Grote cabinetas in overhead bin. Inbegrepen bij Up Front/Extra Legroom seats.",
+        icon: "🧳",
+        warning: "Zonder boeking gaat je tas gratis naar het ruim — maar je kunt er niet bij!",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 15 kg",
+        size: "max 275 cm (L+B+H)",
+        weight: "max 15 kg",
+        price: "€9 – €40",
+        priceNum: 9,
+        description: "Lichte koffer in het ruim.",
+        icon: "📦",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 23 kg",
+        size: "max 275 cm (L+B+H)",
+        weight: "max 23 kg",
+        price: "€13 – €55",
+        priceNum: 13,
+        description: "Standaard koffer. Tot 3 stuks bijboekbaar.",
+        icon: "📦",
+      },
+    ],
+    tips: [
+      {
+        icon: "🎯",
+        title: "Up Front seat = gratis overhead bag",
+        text: "Boek een Up Front of Extra Legroom stoel en je overhead handbagage is inbegrepen!",
+        highlight: true,
+      },
+      {
+        icon: "⚠️",
+        title: "Gate bag drop",
+        text: "Zonder cabinetas-boeking wordt je trolley gratis naar het ruim gebracht bij de gate. Goed als je niks breekbaars hebt!",
+        highlight: false,
+      },
+    ],
+    seatTip: null,
+  },
+
+  wizzair: {
+    airline: "Wizz Air",
+    color: "#C6007E",
+    options: [
+      {
+        tier: "gratis",
+        name: "Kleine tas",
+        size: "40 × 30 × 20 cm",
+        weight: "max 10 kg",
+        price: "Gratis",
+        priceNum: 0,
+        description: "Past onder de stoel. Bij elk ticket inbegrepen.",
+        icon: "👜",
+      },
+      {
+        tier: "cabin",
+        name: "Trolley cabinetas",
+        size: "55 × 40 × 23 cm",
+        weight: "max 10 kg",
+        price: "€8 – €40",
+        priceNum: 8,
+        description: "Overhead bin. Inbegrepen bij WIZZ Priority.",
+        icon: "🧳",
+        warning: "Zonder Priority: €60 op de luchthaven!",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 10 kg",
+        size: "max 149 cm (L+B+H)",
+        weight: "max 10 kg",
+        price: "€10 – €30",
+        priceNum: 10,
+        description: "Kleine koffer in het ruim.",
+        icon: "📦",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 20 kg",
+        size: "max 149 cm (L+B+H)",
+        weight: "max 20 kg",
+        price: "€15 – €55",
+        priceNum: 15,
+        description: "Standaard koffer in het ruim.",
+        icon: "📦",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 32 kg",
+        size: "max 149 cm (L+B+H)",
+        weight: "max 32 kg",
+        price: "€20 – €75",
+        priceNum: 20,
+        description: "Grote/zware koffer in het ruim.",
+        icon: "📦",
+      },
+    ],
+    tips: [
+      {
+        icon: "💡",
+        title: "WIZZ Priority = trolley erbij",
+        text: "WIZZ Priority bevat cabinetas + priority boarding. Bijna altijd goedkoper dan los bijboeken.",
+        highlight: true,
+      },
+      {
+        icon: "💡",
+        title: "WIZZ Discount Club bespaart €5-€10 per vlucht",
+        text: "Vlieg je vaker dan 3x per jaar met Wizz? Dan verdien je het lidmaatschap (€30/jaar) snel terug.",
+        highlight: false,
+      },
+    ],
+    seatTip: null,
+  },
+
+  norwegian: {
+    airline: "Norwegian",
+    color: "#D81939",
+    options: [
+      {
+        tier: "gratis",
+        name: "Kleine tas",
+        size: "40 × 30 × 15 cm",
+        weight: "max 10 kg",
+        price: "Gratis",
+        priceNum: 0,
+        description: "Past onder de stoel. Bij elk LowFare-ticket inbegrepen.",
+        icon: "👜",
+      },
+      {
+        tier: "cabin",
+        name: "Handbagage (trolley)",
+        size: "55 × 40 × 23 cm",
+        weight: "max 10 kg",
+        price: "Inbegrepen bij LowFare+",
+        priceNum: 0,
+        description: "Inbegrepen bij LowFare+ en Flex. Bij LowFare apart bijboeken.",
+        icon: "🧳",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 23 kg",
+        size: "max 250 cm (L+B+H)",
+        weight: "max 23 kg",
+        price: "€20 – €70",
+        priceNum: 20,
+        description: "Inbegrepen bij LowFare+ en Flex. Bij LowFare apart bijboeken.",
+        icon: "📦",
+      },
+    ],
+    tips: [
+      {
+        icon: "💡",
+        title: "LowFare+ is vaak de beste deal",
+        text: "LowFare+ bevat handbagage + 23 kg ruimbagage + stoelkeuze. Vergelijk altijd!",
+        highlight: true,
+      },
+    ],
+    seatTip: null,
+  },
+
+  turkish: {
+    airline: "Turkish Airlines",
+    color: "#C8102E",
+    options: [
+      {
+        tier: "cabin",
+        name: "Handbagage",
+        size: "55 × 40 × 23 cm",
+        weight: "max 8 kg",
+        price: "Gratis",
+        priceNum: 0,
+        description: "1 handbagage + 1 persoonlijk item bij elk ticket.",
+        icon: "🧳",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 23 kg",
+        size: "max 158 cm (L+B+H)",
+        weight: "max 23 kg",
+        price: "Gratis (1x)",
+        priceNum: 0,
+        description: "1 koffer van 23 kg inbegrepen bij Economy. EcoFly: 1x23 kg.",
+        icon: "📦",
+      },
+    ],
+    tips: [
+      {
+        icon: "💡",
+        title: "Ruimbagage altijd inbegrepen",
+        text: "Turkish Airlines geeft standaard 23 kg ruimbagage bij Economy tickets. Een van de meest genereuze airlines qua bagage!",
+        highlight: true,
+      },
+    ],
+    seatTip: null,
+  },
+
+  lufthansa: {
+    airline: "Lufthansa",
+    color: "#05164D",
+    options: [
+      {
+        tier: "cabin",
+        name: "Handbagage",
+        size: "55 × 40 × 23 cm",
+        weight: "max 8 kg",
+        price: "Gratis",
+        priceNum: 0,
+        description: "1 handbagage + 1 accessoire bij elk ticket.",
+        icon: "🧳",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 23 kg",
+        size: "max 158 cm (L+B+H)",
+        weight: "max 23 kg",
+        price: "€0 – €70",
+        priceNum: 0,
+        description: "Inbegrepen bij Classic/Flex. Bij Economy Light apart bijboeken.",
+        icon: "📦",
+      },
+    ],
+    tips: [
+      {
+        icon: "⚠️",
+        title: "Economy Light = geen ruimbagage",
+        text: "Het goedkoopste tarief heeft GEEN ruimbagage. Check altijd welk tarief je boekt!",
+        highlight: true,
+      },
+    ],
+    seatTip: null,
+  },
+
+  airfrance: {
+    airline: "Air France",
+    color: "#002157",
+    options: [
+      {
+        tier: "cabin",
+        name: "Handbagage",
+        size: "55 × 35 × 25 cm",
+        weight: "max 12 kg",
+        price: "Gratis",
+        priceNum: 0,
+        description: "1 handbagage + 1 accessoire bij elk ticket.",
+        icon: "🧳",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 23 kg",
+        size: "max 158 cm (L+B+H)",
+        weight: "max 23 kg",
+        price: "€0 – €70",
+        priceNum: 0,
+        description: "Inbegrepen bij Standard/Flex. Bij Economy Light apart bijboeken.",
+        icon: "📦",
+      },
+    ],
+    tips: [
+      {
+        icon: "⚠️",
+        title: "Economy Light = geen ruimbagage",
+        text: "Goedkoopste tarief bevat geen ruimbagage. Online bijboeken is altijd goedkoper.",
+        highlight: true,
+      },
+    ],
+    seatTip: null,
+  },
+
+  iberia: {
+    airline: "Iberia",
+    color: "#D7192D",
+    options: [
+      {
+        tier: "cabin",
+        name: "Handbagage",
+        size: "56 × 40 × 25 cm",
+        weight: "max 10 kg",
+        price: "Gratis",
+        priceNum: 0,
+        description: "1 handbagage + 1 persoonlijk item bij elk ticket.",
+        icon: "🧳",
+      },
+      {
+        tier: "checked",
+        name: "Ruimbagage 23 kg",
+        size: "max 158 cm (L+B+H)",
+        weight: "max 23 kg",
+        price: "€25 – €70",
+        priceNum: 25,
+        description: "Inbegrepen bij Classic/Flex. Bij Basic apart bijboeken.",
+        icon: "📦",
+      },
+    ],
+    tips: [
+      {
+        icon: "⚠️",
+        title: "Basic-tarief = geen ruimbagage",
+        text: "Iberia Basic bevat geen ruimbagage. Vergelijk met Classic als je een koffer nodig hebt.",
+        highlight: true,
+      },
+    ],
+    seatTip: null,
+  },
 };
 
 export function getBaggageInfo(airlineName) {
-  const key = airlineName.toLowerCase();
+  const key = (airlineName || '').toLowerCase();
   if (key.includes('ryanair')) return AIRLINE_BAGGAGE.ryanair;
   if (key.includes('vueling')) return AIRLINE_BAGGAGE.vueling;
   if (key.includes('eurowings')) return AIRLINE_BAGGAGE.eurowings;
+  if (key.includes('klm') || key.includes('royal dutch')) return AIRLINE_BAGGAGE.klm;
+  if (key.includes('transavia')) return AIRLINE_BAGGAGE.transavia;
+  if (key.includes('easyjet') || key.includes('easy jet')) return AIRLINE_BAGGAGE.easyjet;
+  if (key.includes('wizz')) return AIRLINE_BAGGAGE.wizzair;
+  if (key.includes('norwegian')) return AIRLINE_BAGGAGE.norwegian;
+  if (key.includes('turkish')) return AIRLINE_BAGGAGE.turkish;
+  if (key.includes('lufthansa')) return AIRLINE_BAGGAGE.lufthansa;
+  if (key.includes('air france')) return AIRLINE_BAGGAGE.airfrance;
+  if (key.includes('iberia')) return AIRLINE_BAGGAGE.iberia;
   return null;
 }
