@@ -36,12 +36,12 @@ export async function searchAllFlights({ origin, destination, dateOut, dateIn, a
 
   const [ryanairFlights, serpFlights] = await Promise.all([ryanairPromise, serpPromise]);
 
-  // Filter Ryanair duplicates from SerpApi results
-  const serpWithoutRyanair = serpFlights.filter(f =>
-    !f.airline?.toLowerCase().includes('ryanair')
-  );
+  // Only filter SerpApi Ryanair results when the direct API returned flights
+  const filteredSerpFlights = ryanairFlights.length > 0
+    ? serpFlights.filter(f => !f.airline?.toLowerCase().includes('ryanair'))
+    : serpFlights;
 
-  results.flights = [...ryanairFlights, ...serpWithoutRyanair];
+  results.flights = [...ryanairFlights, ...filteredSerpFlights];
 
   // Build booking links for each flight
   results.googleFlightsUrl = googleFlightsUrl;
