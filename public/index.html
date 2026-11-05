@@ -112,7 +112,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--font-body); p
 .best-tag { display: inline-block; padding: 2px 8px; border-radius: 6px; background: #dcfce7; color: #15803d; font-size: 0.7rem; font-weight: 600; margin-top: 4px; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .best-tag { background: #052e16; color: #4ade80; } }
 :root[data-theme="dark"] .best-tag { background: #052e16; color: #4ade80; }
-.select-btn { margin-top: 8px; padding: 8px 20px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+.select-btn { display: inline-block; margin-top: 8px; padding: 8px 20px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; }
 .select-btn:hover { opacity: 0.88; }
 
 /* Loading */
@@ -299,6 +299,7 @@ let authToken = null;
 let allFlights = [];
 let currentSort = 'price';
 let currentFilter = 'all';
+let displayedFlights = [];
 
 // Autocomplete
 let acTimeout = null;
@@ -624,6 +625,7 @@ function renderFlights() {
     return 0;
   });
 
+  displayedFlights = filtered;
   const cheapestId = filtered.length ? filtered.reduce((min, f, i) => (f.price ?? 9999) < (min.price ?? 9999) ? { idx: i, price: f.price } : min, { idx: 0, price: filtered[0]?.price }).idx : -1;
 
   document.getElementById('resultCount').innerHTML = `<strong>${filtered.length}</strong> ${filtered.length === 1 ? 'vlucht' : 'vluchten'} gevonden`;
@@ -668,7 +670,10 @@ function renderFlights() {
         <div class="price-label">p.p.</div>
         ${i === cheapestId ? '<div class="best-tag">Goedkoopst</div>' : ''}
         <button class="bag-toggle" onclick="event.stopPropagation(); toggleBagPanel(this.closest('.flight-card'), '${f.airline}')">✈ Bagage-info</button>
-        <button class="select-btn" onclick="event.stopPropagation(); selectFlight(${i})">Selecteer</button>
+        ${f.bookingUrl
+          ? `<a class="select-btn" href="${f.bookingUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Boek bij ${f.airline}</a>`
+          : `<button class="select-btn" onclick="event.stopPropagation(); selectFlight(${i})">Boek bij ${f.airline}</button>`
+        }
       </div>
     </div>`;
   }).join('');
@@ -696,33 +701,28 @@ function getDayOffset(dep, arr) {
 }
 
 function selectFlight(idx) {
-  const f = allFlights[idx];
+  const f = displayedFlights[idx];
+  if (!f) return;
 
-  if (f.bookingUrl) {
-    showToast(`Doorsturen naar ${f.airline}...`);
-    setTimeout(() => { window.open(f.bookingUrl, '_blank'); }, 400);
-  } else {
-    const origin = document.getElementById('originCode').value.trim().toUpperCase();
-    const dest = document.getElementById('destCode').value.trim().toUpperCase();
-    const dateOut = document.getElementById('departDate').value;
-    const dateIn = document.getElementById('returnDate').value;
-    const [adults, children] = document.getElementById('passengers').value.split('-').map(Number);
+  const origin = document.getElementById('originCode').value.trim().toUpperCase();
+  const dest = document.getElementById('destCode').value.trim().toUpperCase();
+  const dateOut = document.getElementById('departDate').value;
+  const dateIn = document.getElementById('returnDate').value;
+  const [adults, children] = document.getElementById('passengers').value.split('-').map(Number);
 
-    const params = new URLSearchParams({ airline: f.airline, origin, destination: dest, dateOut, adults, children });
-    if (dateIn) params.set('dateIn', dateIn);
+  const params = new URLSearchParams({ airline: f.airline, origin, destination: dest, dateOut, adults, children });
+  if (dateIn) params.set('dateIn', dateIn);
 
-    fetch(`/api/book?${params}`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.bookingUrl) {
-          showToast(`Doorsturen naar ${data.airline}...`);
-          setTimeout(() => { window.open(data.bookingUrl, '_blank'); }, 400);
-        } else {
-          showToast(data.error || 'Kon geen boekingslink maken.');
-        }
-      })
-      .catch(() => showToast('Er ging iets mis.'));
-  }
+  fetch(`/api/book?${params}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.bookingUrl) {
+        window.location.href = data.bookingUrl;
+      } else {
+        showToast(data.error || 'Kon geen boekingslink maken.');
+      }
+    })
+    .catch(() => showToast('Er ging iets mis.'));
 }
 
 function swapCities() {
