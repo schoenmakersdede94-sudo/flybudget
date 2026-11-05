@@ -46,9 +46,19 @@ export async function searchAllFlights({ origin, destination, dateOut, dateIn, a
   // Build booking links for each flight
   results.googleFlightsUrl = googleFlightsUrl;
   for (const flight of results.flights) {
-    flight.googleUrl = googleFlightsUrl;
     flight.airlineUrl = getBookingUrl(flight.airline, searchParams);
-    flight.bookingUrl = googleFlightsUrl || flight.airlineUrl;
+
+    if (flight.bookingToken) {
+      flight.bookingUrl = `https://www.google.com/travel/flights/booking?tfs=${flight.bookingToken}&hl=nl&gl=nl&curr=EUR`;
+    } else if (flight.source === 'ryanair') {
+      flight.bookingUrl = flight.airlineUrl;
+    } else {
+      flight.bookingUrl = googleFlightsUrl || flight.airlineUrl;
+    }
+
+    flight.googleUrl = flight.bookingToken
+      ? `https://www.google.com/travel/flights/booking?tfs=${flight.bookingToken}&hl=nl&gl=nl&curr=EUR`
+      : googleFlightsUrl;
   }
 
   // Sort by price (cheapest first)
