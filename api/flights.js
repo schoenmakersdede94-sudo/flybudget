@@ -1,5 +1,5 @@
 import { searchRyanairFlights } from './ryanair.js';
-import { searchGoogleFlights, parseSerpApiResults } from './serpapi.js';
+import { searchGoogleFlights, parseSerpApiResults, getGoogleFlightsUrl } from './serpapi.js';
 import { getBookingUrl } from './deeplinks.js';
 
 export async function searchAllFlights({ origin, destination, dateOut, dateIn, adults, children }) {
@@ -18,6 +18,7 @@ export async function searchAllFlights({ origin, destination, dateOut, dateIn, a
     });
 
   // SerpApi Google Flights — voor Vueling, Eurowings en overige
+  let googleFlightsUrl = null;
   const serpPromise = searchGoogleFlights(origin, destination, dateOut, dateIn, adults, children)
     .then(data => {
       if (data.error) {
@@ -25,6 +26,7 @@ export async function searchAllFlights({ origin, destination, dateOut, dateIn, a
         return [];
       }
       results.sources.push('google_flights');
+      googleFlightsUrl = getGoogleFlightsUrl(data);
       return parseSerpApiResults(data);
     })
     .catch(err => {
@@ -42,19 +44,11 @@ export async function searchAllFlights({ origin, destination, dateOut, dateIn, a
   results.flights = [...ryanairFlights, ...serpWithoutRyanair];
 
   // Build booking links for each flight
-  const dateFormatted = dateOut;
+  results.googleFlightsUrl = googleFlightsUrl;
   for (const flight of results.flights) {
-    // Primary: Google Flights search URL (always works)
-    const flt = dateIn
-      ? `${origin}.${destination}.${dateOut}*${destination}.${origin}.${dateIn}`
-      : `${origin}.${destination}.${dateOut}`;
-    flight.googleUrl = `https://www.google.com/travel/flights?hl=nl&gl=nl&curr=EUR#flt=${flt}`;
-
-    // Secondary: direct airline website
+    flight.googleUrl = googleFlightsUrl;
     flight.airlineUrl = getBookingUrl(flight.airline, searchParams);
-
-    // Use Google Flights as primary booking link
-    flight.bookingUrl = flight.googleUrl;
+    flight.bookingUrl = googleFlightsUrl || flight.airlineUrl;
   }
 
   // Sort by price (cheapest first)

@@ -27,6 +27,10 @@ export async function searchGoogleFlights(origin, destination, dateOut, dateIn, 
   return res.json();
 }
 
+export function getGoogleFlightsUrl(data) {
+  return data?.search_metadata?.google_flights_url || null;
+}
+
 export function parseSerpApiResults(data, filterAirlines = []) {
   const flights = [];
   const buckets = [
